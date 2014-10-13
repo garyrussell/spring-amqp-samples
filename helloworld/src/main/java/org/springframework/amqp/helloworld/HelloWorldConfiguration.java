@@ -1,11 +1,13 @@
 package org.springframework.amqp.helloworld;
 
 import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate.ReturnCallback;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,9 +21,10 @@ public class HelloWorldConfiguration {
 		CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
 		connectionFactory.setUsername("guest");
 		connectionFactory.setPassword("guest");
+		connectionFactory.setPublisherReturns(true);
 		return connectionFactory;
 	}
-	
+
 	@Bean
 	public AmqpAdmin amqpAdmin() {
 		return new RabbitAdmin(connectionFactory());
@@ -32,8 +35,18 @@ public class HelloWorldConfiguration {
 		RabbitTemplate template = new RabbitTemplate(connectionFactory());
 		//The routing key is set to the name of the queue by the broker for the default exchange.
 		template.setRoutingKey(this.helloWorldQueueName);
+		// uncomment to generate a return
+//		template.setRoutingKey("junkjunkjunk");
 		//Where we will synchronously receive messages from
 		template.setQueue(this.helloWorldQueueName);
+		template.setReturnCallback(new ReturnCallback() {
+
+			public void returnedMessage(Message message, int replyCode, String replyText,
+					String exchange, String routingKey) {
+				System.out.println("Returned: " + message + " reason: " + replyText);
+			}
+		});
+		template.setMandatory(true);
 		return template;
 	}
 
@@ -44,37 +57,37 @@ public class HelloWorldConfiguration {
 	}
 
 	/*
-	@Bean 
+	@Bean
 	public Binding binding() {
 		return declare(new Binding(helloWorldQueue(), defaultDirectExchange()));
 	}*/
-	
-	/*	
+
+	/*
 	@Bean
 	public TopicExchange helloExchange() {
 		return declare(new TopicExchange("hello.world.exchange"));
 	}*/
-	
+
 	/*
 	public Queue declareUniqueQueue(String namePrefix) {
 		Queue queue = new Queue(namePrefix + "-" + UUID.randomUUID());
 		rabbitAdminTemplate().declareQueue(queue);
 		return queue;
 	}
-	
+
 	// if the default exchange isn't configured to your liking....
 	@Bean Binding declareP2PBinding(Queue queue, DirectExchange exchange) {
 		return declare(new Binding(queue, exchange, queue.getName()));
 	}
-	
+
 	@Bean Binding declarePubSubBinding(String queuePrefix, FanoutExchange exchange) {
 		return declare(new Binding(declareUniqueQueue(queuePrefix), exchange));
 	}
-	
+
 	@Bean Binding declarePubSubBinding(UniqueQueue uniqueQueue, TopicExchange exchange) {
 		return declare(new Binding(uniqueQueue, exchange));
 	}
-	
+
 	@Bean Binding declarePubSubBinding(String queuePrefix, TopicExchange exchange, String routingKey) {
 		return declare(new Binding(declareUniqueQueue(queuePrefix), exchange, routingKey));
 	}*/
