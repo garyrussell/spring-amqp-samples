@@ -44,7 +44,7 @@ public class ReceiverApplication {
 		return new Receiver();
 	}
 
-	@RabbitListener(queues="hello")
+	@RabbitListener(queues="tut.hello")
 	public static class Receiver {
 
 		@RabbitHandler

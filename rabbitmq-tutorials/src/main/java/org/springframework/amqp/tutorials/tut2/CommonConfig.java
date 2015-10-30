@@ -28,7 +28,7 @@ public class CommonConfig {
 
 	@Bean
 	public Queue hello() {
-		return new Queue("hello");
+		return new Queue("tut.hello");
 	}
 
 }

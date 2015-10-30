@@ -74,11 +74,6 @@ public class ReceiverApplication {
 	}
 
 	@Bean
-	public Binding binding2b() {
-		return BindingBuilder.bind(autoDeleteQueue2()).to(topic).with("black");
-	}
-
-	@Bean
 	public Receiver receiver() {
  	 	return new Receiver();
 	}

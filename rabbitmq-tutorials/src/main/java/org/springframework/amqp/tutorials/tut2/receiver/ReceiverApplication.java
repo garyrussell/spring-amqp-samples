@@ -50,7 +50,7 @@ public class ReceiverApplication {
 		return new Receiver(2);
 	}
 
-	@RabbitListener(queues="hello")
+	@RabbitListener(queues="tut.hello")
 	public static class Receiver {
 
 		private final int instance;
